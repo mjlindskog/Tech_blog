@@ -52,9 +52,7 @@ User.init(
                 return updateUserPassword;
             },
             
-        }
-    },
-    {
+        },
         sequelize,
         timestamps: false,
         freezeTableName: true,

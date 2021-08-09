@@ -12,16 +12,16 @@ const commentSeeds = require('./comment_seeds');
 const seedAll = async () => {
     await sequelize.sync({ force: true });
     // syncs database
+    console.log('\n');
     await userSeeds();
     // adds users to db
     console.log('\n');
-    // adds posts to db
     await postSeeds();
+    // adds posts to db
     console.log('\n');
-    // adds comments to db
     await commentSeeds();
-    console.log('\n');
-  
+    // adds comments to db
+      
     process.exit(0);
 };
   

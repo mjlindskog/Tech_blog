@@ -41,7 +41,7 @@ router.get('/:id', (req, res) => {
     })
     .then(userData => {
         if (!userData) {
-          res.status(404).json({ message: 'No user found with this id' });
+          res.status(404).json({ message: 'No user with corresponding id' });
           return;
         }
         res.json(userData);
@@ -52,53 +52,49 @@ router.get('/:id', (req, res) => {
       });
 });
 
-router.post('/', async (req, res) => {
-    try {
-        const userData = await User.create(req.body);
-  
+router.post('/', (req, res) => {
+    User.create({
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password
+    })
+    .then(userData => {
         req.session.save(() => {
             req.session.user_id = userData.id;
             req.session.username = userData.username;
             req.session.loggedIn = true;
-  
-            res.status(200).json(userData);
+      
+            res.json(userData);
         });
-    } catch (err) {
-        res.status(400).json(err);
-    }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    });
 });
-  
-router.post('/login', async (req, res) => {
-    try {
-        const userData = await User.findOne({ where: { email: req.body.email } });
-  
+
+router.post('/login',  (req, res) => {
+    User.findOne({
+        where: { email: req.body.email }
+    })
+    .then(userData => {
         if (!userData) {
-            res
-            .status(400)
-            .json({ message: 'Incorrect email please try again' });
-            return;
+        res.status(400).json({ message: 'No user with that email address!' });
+        return;
         }
-  
-        const validPassword = await userData.checkPassword(req.body.password);
-  
+        const validPassword = userData.checkPassword(req.body.password);
         if (!validPassword) {
-            res
-            .status(400)
-            .json({ message: 'Incorrect password, please try again' });
+            res.status(400).json({ message: 'Incorrect password!' });
             return;
         }
-  
         req.session.save(() => {
             req.session.user_id = userData.id;
             req.session.username = userData.username;
             req.session.loggedIn = true;
-        
-            res.json({ user: userData, message: 'You are now logged in!' });
+    
+          res.json({ user: userData, message: 'You are now logged in!' });
         });
-  
-    } catch (err) {
-        res.status(400).json(err);
-    }
+    });  
 });
 
 router.post('/logout', withAuth, (req, res) => {
